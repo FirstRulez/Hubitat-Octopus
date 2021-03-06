@@ -27,7 +27,7 @@
  *
  */
 
- def version() {"v0.0.20210305"}
+ def version() {"v0.0.20210306"}
 
 metadata {
     definition (name: "Agile Octopus Monitor", namespace: "firstrulez", author: "David Irwin", description: "This driver will provice simple notifications when Agile Octopus eletricity costs change", importUrl: "https://raw.githubusercontent.com/FirstRulez/Hubitat-Octopus/main/drivers/Octopus-Monitor.groovy") {
@@ -39,12 +39,12 @@ metadata {
 preferences {
     input "apiSecret", "text", title: "Agile Octopus API Secret Key", description: "in form of sk_live_acbDEF123ACBdef321", required: true, displayDuringSetup: true
     input "accountNumber", "text", title: "Agile Octopus Account Number", description: "in form of A-1A2B3C4D", required: true, displayDuringSetup: true
-	input "pollingInterval", "number", title: "Polling Interval", description: "in minutes", range: "1..30", defaultValue: 30, displayDuringSetup: true
+    input "pollingInterval", "number", title: "Polling Interval", description: "in minutes", range: "1..30", defaultValue: 30, displayDuringSetup: true
     input name: "logEnable", type: "bool", title: "Enable debug logging", defaultValue: true
 }
 
 def logsOff(){
-    log.warn "debug logging disabled..."
+    log.info "debug logging disabled..."
     device.updateSetting("logEnable",[value:"false",type:"bool"])
 }
 
@@ -68,17 +68,17 @@ def installed() {
     {
         log.warn "Please enter the API Key and then click SAVE"
     }
-
 }
 
 def updated() {
     log.info "updated() called"
+    log.debug "Remove schedule"
     unschedule()
+    log.debug "Pend disable debug logs"
     if (logEnable) runIn(1800,logsOff)
     initialize()
-	log.info "Creating schedule"
+    log.info "Creating schedule"
     schedule('0 */${pollingInterval} * ? * *', getCurrentCost)
-
 }
 
 def initialize() {
