@@ -33,16 +33,15 @@ metadata {
     definition (name: "Agile Octopus Monitor", namespace: "firstrulez", author: "David Irwin", description: "This driver will provice simple notifications when Agile Octopus eletricity costs change", importUrl: "") {
         capability "Initialize"
         capability "Refresh"
-        
 		
-		//capability "estimatedTimeOfArrival" //future - time until next change
+	//capability "estimatedTimeOfArrival" //future - time until next change
     }
 }
 
 preferences {
     input "apiSecret", "text", title: "Agile Octopus API Secret Key", description: "in form of sk_live_acbDEF123ACBdef321", required: true, displayDuringSetup: true
     input "accountNumber", "text", title: "Agile Octopus Account Number", description: "in form of A-1A2B3C4D", required: true, displayDuringSetup: true
-	input "pollingInterval", "number", title: "Polling Interval", description: "in minutes", range: "1..30", defaultValue: 30, displayDuringSetup: true
+    input "pollingInterval", "number", title: "Polling Interval", description: "in minutes", range: "1..30", defaultValue: 30, displayDuringSetup: true
     input name: "logEnable", type: "bool", title: "Enable debug logging", defaultValue: true
 }
 
@@ -52,15 +51,15 @@ def logsOff(){
 }
 
 def refresh() {
-   log.warn "refresh called, notthing defined..."
+   log.info "refresh() called, notthing here..."
 }
 
 def installed() {
     state.version = version()
-    log.info "initialize() called"
+    log.info "installed() called"
     if (apiSecret) {
         if (accountNumber) {
-			
+			initialize()
 		}
 		else
 		{
@@ -79,7 +78,7 @@ def updated() {
     unschedule()
     if (logEnable) runIn(1800,logsOff)
     initialize()
-    //schedule("0/${pollingInterval} * * * ? * *", handleUpdates)
+    //schedule("0/${pollingInterval} * * * ? * *", getCurrentCost)
 }
 
 def initialize() {
@@ -111,7 +110,10 @@ def initialize() {
     {
         log.warn "Please enter the API Key and then click SAVE"
     }
+}
 
+def getCurrentCost() {
+    log.info "getCurrentCost() called, notthing here..."
 }
 
 def uninstalled() {
