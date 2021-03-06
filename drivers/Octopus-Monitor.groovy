@@ -88,7 +88,7 @@ def initialize() {
         if (accountNumber) {
 			def params = [
 				uri: "https://api.octopus.energy/v1/accounts/",
-				timeout: 20
+				timeout: 20,
 				headers: [Authorization: "Basic ${apiSecret}"]
 			]
 			httpGet(params){response ->
