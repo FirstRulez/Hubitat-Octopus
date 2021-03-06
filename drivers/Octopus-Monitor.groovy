@@ -78,6 +78,7 @@ def updated() {
     initialize()
 	log.info "Creating schedule"
     schedule('0 */${pollingInterval} * ? * *', getCurrentCost)
+
 }
 
 def initialize() {
@@ -101,12 +102,13 @@ def initialize() {
 				if (logEnable) log.info responseBody
 			
 				httpGet(params){response ->
-                if(response.status != 200) {
-					log.debug "Things went badly on the API call"
-					log.debug "Response status was ${response.status}" 
-				}
-				else {
-					log.debug "Response from IoTaWatt = ${response.data}"
+                			if(response.status != 200) {
+						log.debug "Things went badly on the API call"
+						log.debug "Response status was ${response.status}" 
+					}
+					else {
+						log.debug "Response from IoTaWatt = ${response.data}"
+					}
 				}
 			}
 		}
