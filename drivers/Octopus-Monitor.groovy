@@ -33,15 +33,14 @@ metadata {
     definition (name: "Agile Octopus Monitor", namespace: "firstrulez", author: "David Irwin", description: "This driver will provice simple notifications when Agile Octopus eletricity costs change", importUrl: "https://raw.githubusercontent.com/FirstRulez/Hubitat-Octopus/main/drivers/Octopus-Monitor.groovy") {
         capability "Initialize"
         capability "Refresh"
-		
-	//capability "estimatedTimeOfArrival" //future - time until next change
+        capability "powerMeter"
     }
 }
 
 preferences {
     input "apiSecret", "text", title: "Agile Octopus API Secret Key", description: "in form of sk_live_acbDEF123ACBdef321", required: true, displayDuringSetup: true
     input "accountNumber", "text", title: "Agile Octopus Account Number", description: "in form of A-1A2B3C4D", required: true, displayDuringSetup: true
-    input "pollingInterval", "number", title: "Polling Interval", description: "in minutes", range: "1..30", defaultValue: 30, displayDuringSetup: true
+	input "pollingInterval", "number", title: "Polling Interval", description: "in minutes", range: "1..30", defaultValue: 30, displayDuringSetup: true
     input name: "logEnable", type: "bool", title: "Enable debug logging", defaultValue: true
 }
 
@@ -51,7 +50,7 @@ def logsOff(){
 }
 
 def refresh() {
-   log.info "refresh() called, notthing here..."
+   log.warn "refresh called, notthing defined..."
 }
 
 def installed() {
@@ -78,7 +77,8 @@ def updated() {
     unschedule()
     if (logEnable) runIn(1800,logsOff)
     initialize()
-    //schedule("0/${pollingInterval} * * * ? * *", getCurrentCost)
+	log.info "Creating schedule"
+    schedule('0 */${pollingInterval} * ? * *', getCurrentCost)
 }
 
 def initialize() {
@@ -89,12 +89,22 @@ def initialize() {
 			def params = [
 				uri: "https://api.octopus.energy/v1/accounts/",
 				timeout: 20,
-				headers: [Authorization: "Basic ${apiSecret}"]
+				headers: [Authorization: "Basic ${apiSecret}:"]
 			]
-			httpGet(params){response ->
+			try {
+				log.debug "Params:  ${Params}"
+				httpGet(params) { resp -> 
+					log.debug resp.getData()
+					responseBody = resp.getData()}
+				} catch(Exception e) {
+					log.debug "error occured calling httpget ${e}"
+				}
+				if (logEnable) log.info responseBody
+			
+				httpGet(params){response ->
                 if(response.status != 200) {
-					log.warn "Things went badly on the API call"
-					log.warn "Response status was ${response.status}" 
+					log.debug "Things went badly on the API call"
+					log.debug "Response status was ${response.status}" 
 				}
 				else {
 					log.debug "Response from IoTaWatt = ${response.data}"
@@ -113,7 +123,7 @@ def initialize() {
 }
 
 def getCurrentCost() {
-    log.info "getCurrentCost() called, notthing here..."
+	log.info "Executing 'getCurrentCost()'"
 }
 
 def uninstalled() {
