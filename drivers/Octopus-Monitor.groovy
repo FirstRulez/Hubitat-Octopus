@@ -33,7 +33,6 @@ metadata {
     definition (name: "Agile Octopus Monitor", namespace: "firstrulez", author: "David Irwin", description: "This driver will provice simple notifications when Agile Octopus eletricity costs change", importUrl: "https://raw.githubusercontent.com/FirstRulez/Hubitat-Octopus/main/drivers/Octopus-Monitor.groovy") {
         capability "Initialize"
         capability "Refresh"
-        capability "powerMeter"
     }
 }
 
