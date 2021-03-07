@@ -1,6 +1,6 @@
 /**
  *
- *  File: IoTaWatt-Parent.groovy
+ *  File: Octopus-Monitor.groovy
  *  Platform: Hubitat
  *
  *  Requirements:
@@ -23,11 +23,12 @@
  *    Date        Who            What
  *    ----        ---            ----
  *    2021-03-05  David Irwin    Creation
- *
- *
+ *    2021-03-06  David Irwin    Tidy up, create actions, test auth against API (failing)
+ *    2021-03-07  David Irwin    Sort out file header
+ * 
  */
 
- def version() {"v0.0.20210306"}
+ def version() {"v0.0.20210307"}
 
 metadata {
     definition (name: "Agile Octopus Monitor", namespace: "firstrulez", author: "David Irwin", description: "This driver will provice simple notifications when Agile Octopus eletricity costs change", importUrl: "https://raw.githubusercontent.com/FirstRulez/Hubitat-Octopus/main/drivers/Octopus-Monitor.groovy") {
