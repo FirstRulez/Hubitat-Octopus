@@ -40,12 +40,12 @@ metadata {
 preferences {
     input "apiSecret", "text", title: "Agile Octopus API Secret Key", description: "in form of sk_live_acbDEF123ACBdef321", required: true, displayDuringSetup: true
     input "accountNumber", "text", title: "Agile Octopus Account Number", description: "in form of A-1A2B3C4D", required: true, displayDuringSetup: true
-    input "pollingInterval", "number", title: "Polling Interval", description: "in minutes", range: "1..30", defaultValue: 30, displayDuringSetup: true
+	input "pollingInterval", "number", title: "Polling Interval", description: "in minutes", range: "1..30", defaultValue: 30, displayDuringSetup: true
     input name: "logEnable", type: "bool", title: "Enable debug logging", defaultValue: true
 }
 
 def logsOff(){
-    log.info "debug logging disabled..."
+    log.warn "debug logging disabled..."
     device.updateSetting("logEnable",[value:"false",type:"bool"])
 }
 
@@ -69,16 +69,17 @@ def installed() {
     {
         log.warn "Please enter the API Key and then click SAVE"
     }
+	log.info "Creating schedule"
+    schedule('0 */${pollingInterval} * ? * *', getCurrentCost)
 }
 
 def updated() {
+    state.version = version()
     log.info "updated() called"
-    log.debug "Remove schedule"
     unschedule()
-    log.debug "Pend disable debug logs"
     if (logEnable) runIn(1800,logsOff)
     initialize()
-    log.info "Creating schedule"
+	log.info "Creating schedule"
     schedule('0 */${pollingInterval} * ? * *', getCurrentCost)
 }
 
@@ -89,27 +90,16 @@ def initialize() {
         if (accountNumber) {
 			def params = [
 				uri: "https://api.octopus.energy/v1/accounts/",
-				timeout: 20,
-				headers: [Authorization: "Basic ${apiSecret}:"]
+				timeout: 10,
+				headers: [Authorization: "Basic ${apiSecret}:"],
 			]
-			try {
-				log.debug "Params:  ${Params}"
-				httpGet(params) { resp -> 
-					log.debug resp.getData()
-					responseBody = resp.getData()}
-				} catch(Exception e) {
-					log.debug "error occured calling httpget ${e}"
+			httpGet(params){response ->
+				if(response.status != 200) {
+					log.debug "Things went badly on the API call"
+					log.debug "Response status was ${response.status}" 
 				}
-				if (logEnable) log.info responseBody
-			
-				httpGet(params){response ->
-                			if(response.status != 200) {
-						log.debug "Things went badly on the API call"
-						log.debug "Response status was ${response.status}" 
-					}
-					else {
-						log.debug "Response from IoTaWatt = ${response.data}"
-					}
+				else {
+					log.debug "Response from IoTaWatt = ${response.data}"
 				}
 			}
 		}
